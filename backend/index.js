@@ -4,6 +4,13 @@ const cookieParser=require("cookie-parser");
 const connectToDb=require("./helpers/connectionToDb.js");
 const userRouter=require("./routes/authRoutes.js");
 const app=express();
+const cors=require("cors");
+
+app.use(cors({
+    origin: 'http://localhost:5173',
+    credentials: true,
+    optionSuccessStatus: 200,
+}))
 
 dotenv.config();
 connectToDb();

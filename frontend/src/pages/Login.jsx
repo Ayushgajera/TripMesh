@@ -1,216 +1,333 @@
-import React, { useState } from 'react';
-import { motion } from 'framer-motion';
+import { useEffect, useState } from 'react'
+import { Button } from '../components/ui/button'
+import { motion, AnimatePresence } from 'framer-motion'
+import { useLoginUserMutation, useSignupUserMutation } from '../features/api/authapi'
+import { toast } from 'sonner'
 
-function Login() {
-  const [isLogin, setIsLogin] = useState(true);
-  const [role, setRole] = useState('passenger');
+const Login = () => {
+  const [isLogin, setIsLogin] = useState(true)
+  const [signupInput, setSignupInput] = useState({
+    userName: "",
+    email: "",
+    password: "",
+    role: "passenger"  // Add role
+  })
+  const [loginInput, setLoginInput] = useState({
+    email: "",
+    password: "",
+    role: "passenger"  // Add role
+  })
+  const [role, setRole] = useState('passenger')
+  const isFormIncomplete = isLogin
+    ? !loginInput.email || !loginInput.password || !loginInput.role
+    : !signupInput.userName || !signupInput.email || !signupInput.password || !signupInput.role;
+
+  const [signupUser, {
+    data: registerData,
+    error: registerError,
+    isLoading: registerLoading,
+    isSuccess: registerSuccess 
+  }] = useSignupUserMutation({
+    refetchOnMountOrArgChange: true
+  });
+
+  const [loginUser, {
+    data: loginData,
+    error: loginError,
+    isLoading: loginLoading,
+    isSuccess: loginSuccess}] = useLoginUserMutation({
+      refetchOnMountOrArgChange: true
+    });
+
+  const changeHandler = (e) => {
+    const { name, value } = e.target
+    if (isLogin) {
+      setLoginInput(prev => ({
+        ...prev,
+        [name]: value
+      }))
+    } else {
+      setSignupInput(prev => ({
+        ...prev,
+        [name]: value
+      }))
+    }
+  }
+
+ const handleSubmit = async (e) => {
+  e.preventDefault();
+  try {
+    if (isLogin) {
+      const res = await loginUser(loginInput).unwrap();
+      console.log("Login Success:", res);
+    } else {
+      const res = await signupUser(signupInput).unwrap();
+      console.log("Register Success:", res);
+    }
+  } catch (err) {
+    console.error("API Error:", err);
+  }
+};
+
+useEffect(() => {
+  if (registerSuccess && registerData) {
+    toast.success("Registration successful! Please log in.");
+  }
+  if(registerError){
+    toast.error(registerError.data.message || "Registration failed. Please try again.");
+  }
+  if (loginSuccess && loginData) {
+    toast.success("Login successful! Welcome back.");
+  }
+  if(loginError) {
+    toast.error( "Login failed. Please check your credentials.");
+  }
+}, [loginLoading, registerLoading, loginData, registerData, loginError, registerError]);
+
 
   const fadeIn = {
-    initial: { opacity: 0, y: 20 },
+    initial: { opacity: 0, y: 10 },
     animate: { opacity: 1, y: 0 },
-    exit: { opacity: 0, y: -20 }
-  };
+    exit: { opacity: 0, y: -10 },
+    transition: {
+      duration: 0.2
+    }
+  }
 
   const slideIn = {
-    initial: { x: -100, opacity: 0 },
+    initial: { x: isLogin ? -20 : 20, opacity: 0 },
     animate: { x: 0, opacity: 1 },
-    transition: { type: "spring", stiffness: 100 }
-  };
+    exit: { x: isLogin ? 20 : -20, opacity: 0 },
+    transition: {
+      type: "spring",
+      stiffness: 300,
+      damping: 30
+    }
+  }
+
+  const containerVariants = {
+    initial: { scale: 0.95, opacity: 0 },
+    animate: { 
+      scale: 1,
+      opacity: 1,
+      transition: { 
+        duration: 0.3, 
+        ease: "easeOut" 
+      }
+    }
+  }
 
   return (
-    <motion.div 
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      className="min-h-screen bg-gradient-to-br from-blue-500 via-purple-500 to-pink-500 flex items-center justify-center p-4"
-    >
-      <motion.div 
-        variants={fadeIn}
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-indigo-100 via-purple-50 to-pink-100 transition-all duration-700">
+      <motion.div
+        variants={containerVariants}
         initial="initial"
         animate="animate"
-        className="bg-white/90 backdrop-blur-md p-8 rounded-2xl shadow-2xl w-full max-w-md"
+        className="max-w-md w-full mx-auto my-8 p-8 bg-white/95 backdrop-blur-lg rounded-2xl 
+          shadow-[0_8px_30px_rgb(0,0,0,0.12)] 
+          hover:shadow-[0_8px_40px_rgb(0,0,0,0.16)] 
+          transition-all duration-300
+          relative
+          overflow-hidden
+          border border-white/20"
       >
-        {/* Toggle Switch */}
-        <motion.div 
-          className="flex justify-center mb-8"
-          whileHover={{ scale: 1.02 }}
-        >
-          <div className="bg-gray-200 rounded-full p-1 flex relative">
-            <motion.div
-              className="absolute top-1 bottom-1 rounded-full bg-blue-500"
-              initial={false}
-              animate={{
-                x: isLogin ? 0 : '100%',
-                width: '50%'
-              }}
-              transition={{ type: "spring", stiffness: 300, damping: 30 }}
-            />
-            <button
-              className={`px-8 py-2 rounded-full relative z-10 transition-colors duration-300 ${
-                isLogin ? 'text-white' : 'text-gray-500'
-              }`}
-              onClick={() => setIsLogin(true)}
-            >
-              Login
-            </button>
-            <button
-              className={`px-8 py-2 rounded-full relative z-10 transition-colors duration-300 ${
-                !isLogin ? 'text-white' : 'text-gray-500'
-              }`}
-              onClick={() => setIsLogin(false)}
-            >
-              Sign Up
-            </button>
-          </div>
-        </motion.div>
-
-        <motion.h2 
-          variants={slideIn}
-          initial="initial"
-          animate="animate"
-          className="text-3xl font-bold text-center mb-8 bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent"
-        >
-          {isLogin ? 'Welcome Back' : 'Create Account'}
-        </motion.h2>
-
-        {/* Role Selection */}
-        <motion.div 
-          className="mb-6"
-          variants={fadeIn}
-          initial="initial"
-          animate="animate"
-        >
-          <label className="block text-gray-700 text-sm font-bold mb-2">Select Role</label>
-          <div className="flex gap-4">
-            <motion.button
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-              className={`flex-1 py-3 rounded-lg transition-all duration-300 ${
-                role === 'passenger'
-                  ? 'bg-blue-500 text-white shadow-lg'
-                  : 'bg-gray-200 text-gray-700'
-              }`}
-              onClick={() => setRole('passenger')}
-            >
-              Passenger
-            </motion.button>
-            <motion.button
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-              className={`flex-1 py-3 rounded-lg transition-all duration-300 ${
-                role === 'driver'
-                  ? 'bg-blue-500 text-white shadow-lg'
-                  : 'bg-gray-200 text-gray-700'
-              }`}
-              onClick={() => setRole('driver')}
-            >
-              Driver
-            </motion.button>
-          </div>
-        </motion.div>
-
-        <motion.form 
-          className="space-y-4"
-          variants={fadeIn}
-          initial="initial"
-          animate="animate"
-        >
-          {!isLogin && (
-            <motion.div
-              initial={{ opacity: 0, height: 0 }}
-              animate={{ opacity: 1, height: 'auto' }}
-              exit={{ opacity: 0, height: 0 }}
-            >
-              <label className="block text-gray-700 text-sm font-bold mb-2">
-                Full Name
-              </label>
-              <input
-                type="text"
-                className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-300"
-                placeholder="Enter your full name"
-              />
-            </motion.div>
-          )}
-
-          <div>
-            <label className="block text-gray-700 text-sm font-bold mb-2">
-              Email Address
-            </label>
-            <input
-              type="email"
-              className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-300"
-              placeholder="Enter your email"
-            />
+        {/* Add a subtle background gradient decoration */}
+        <div className="absolute inset-0 bg-gradient-to-br from-indigo-50 via-purple-50/50 to-pink-50/30 pointer-events-none" />
+        
+        {/* Add a container for the content with relative positioning */}
+        <div className="relative z-10">
+          {/* Toggle Switch */}
+          <div className="flex justify-center mb-6">
+            <div className="bg-gray-100/80 p-1.5 rounded-2xl flex gap-2 shadow-inner">
+              {["Login", "Sign Up"].map((type) => (
+                <motion.button
+                  key={type}
+                  onClick={() => setIsLogin(type === "Login")}
+                  className={`relative px-8 py-2.5 rounded-xl text-sm font-medium transition-colors duration-200
+                    ${(type === "Login" && isLogin) || (type === "Sign Up" && !isLogin)
+                      ? 'text-white'
+                      : 'text-gray-500 hover:text-gray-700'}`}
+                  whileHover={{ scale: 1.03 }}
+                  whileTap={{ scale: 0.98 }}
+                >
+                  {((type === "Login" && isLogin) || (type === "Sign Up" && !isLogin)) && (
+                    <motion.div
+                      layoutId="activeTab"
+                      className="absolute inset-0 bg-gradient-to-r from-indigo-600 to-purple-600 rounded-xl"
+                      style={{ zIndex: -1 }}
+                      transition={{
+                        type: "spring",
+                        stiffness: 500,
+                        damping: 30
+                      }}
+                    />
+                  )}
+                  {type}
+                </motion.button>
+              ))}
+            </div>
           </div>
 
-          <div>
-            <label className="block text-gray-700 text-sm font-bold mb-2">
-              Password
-            </label>
-            <input
-              type="password"
-              className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-300"
-              placeholder="Enter your password"
-            />
-          </div>
-
-          {!isLogin && (
-            <motion.div
-              initial={{ opacity: 0, height: 0 }}
-              animate={{ opacity: 1, height: 'auto' }}
-              exit={{ opacity: 0, height: 0 }}
-            >
-              <label className="block text-gray-700 text-sm font-bold mb-2">
-                Confirm Password
-              </label>
-              <input
-                type="password"
-                className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-300"
-                placeholder="Confirm your password"
-              />
-            </motion.div>
-          )}
-
-          <motion.button
-            whileHover={{ scale: 1.02 }}
-            whileTap={{ scale: 0.98 }}
-            type="submit"
-            className="w-full bg-gradient-to-r from-blue-500 to-purple-600 text-white py-3 rounded-lg hover:opacity-90 transition-all duration-300 shadow-lg"
+          {/* Role Selection */}
+          <motion.div
+            variants={fadeIn}
+            className="mb-6"
           >
-            {isLogin ? 'Login' : 'Sign Up'}
-          </motion.button>
-        </motion.form>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Choose your role
+            </label>
+            <div className="bg-gray-100/80 p-1.5 rounded-2xl flex gap-2 shadow-inner">
+              {["Passenger", "Driver"].map((type) => (
+                <motion.button
+                  key={type}
+                  type="button"
+                  onClick={() => {
+                    setRole(type.toLowerCase());
+                    if (isLogin) {
+                      setLoginInput(prev => ({ ...prev, role: type.toLowerCase() }));
+                    } else {
+                      setSignupInput(prev => ({ ...prev, role: type.toLowerCase() }));
+                    }
+                  }}
+                  className={`relative flex-1 px-8 py-2.5 rounded-xl text-sm font-medium transition-colors duration-200
+                    ${role === type.toLowerCase()
+                      ? 'text-white'
+                      : 'text-gray-500 hover:text-gray-700'}`}
+                  whileHover={{ scale: 1.03 }}
+                  whileTap={{ scale: 0.98 }}
+                >
+                  {role === type.toLowerCase() && (
+                    <motion.div
+                      layoutId="activeRole"
+                      className="absolute inset-0 bg-gradient-to-r from-indigo-600 to-purple-600 rounded-xl"
+                      style={{ zIndex: -1 }}
+                      transition={{
+                        type: "spring",
+                        stiffness: 500,
+                        damping: 30
+                      }}
+                    />
+                  )}
+                  {type}
+                </motion.button>
+              ))}
+            </div>
+          </motion.div>
 
-        <motion.p 
-          variants={fadeIn}
-          className="text-center mt-6 text-sm text-gray-600"
-        >
-          {isLogin ? (
-            <>
-              Don't have an account?{' '}
-              <motion.button
-                whileHover={{ scale: 1.05 }}
-                className="text-blue-500 font-semibold hover:text-blue-600"
-                onClick={() => setIsLogin(false)}
+          <AnimatePresence mode="wait">
+            <motion.div
+              key={isLogin ? "login-form" : "signup-form"}
+              className="space-y-4"
+              initial="initial"
+              animate="animate"
+              exit="exit"
+              variants={slideIn}
+            >
+              {/* Form Header */}
+              <motion.div 
+                variants={fadeIn}
+                className="text-center space-y-1"
               >
-                Sign Up
-              </motion.button>
-            </>
-          ) : (
-            <>
-              Already have an account?{' '}
-              <motion.button
-                whileHover={{ scale: 1.05 }}
-                className="text-blue-500 font-semibold hover:text-blue-600"
-                onClick={() => setIsLogin(true)}
-              >
-                Login
-              </motion.button>
-            </>
-          )}
-        </motion.p>
+                <h2 className="text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-indigo-600 to-purple-600">
+                  {isLogin ? 'Welcome Back' : 'Join Us'}
+                </h2>
+                <p className="text-sm text-gray-600">
+                  {isLogin ? "We're glad to see you again" : "Begin your journey with us"}
+                </p>
+              </motion.div>
+
+              <form onSubmit={handleSubmit} className="space-y-3">
+                <motion.div className="space-y-3">
+                  {/* Name field - conditionally rendered */}
+                  {!isLogin && (
+                    <motion.div
+                      variants={fadeIn}
+                      initial="initial"
+                      animate="animate"
+                      exit="exit"
+                      className="group"
+                    >
+                      <label className="block text-sm font-medium text-gray-700 mb-1">Name</label>
+                      <input
+                        name="userName"
+                        type="text"
+                        required
+                        value={signupInput.userName}
+                        onChange={changeHandler}
+                        className="block w-full px-4 py-2.5 border border-gray-200 rounded-xl 
+                          bg-white/50 backdrop-blur-sm
+                          transition-all duration-200 
+                          focus:ring-2 focus:ring-indigo-500 focus:border-transparent
+                          group-hover:border-gray-300"
+                        placeholder="Enter your name"
+                      />
+                    </motion.div>
+                  )}
+
+                  {/* Email and Password fields */}
+                  <motion.div variants={fadeIn} className="group">
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Email</label>
+                    <input
+                      name="email"
+                      type="email"
+                      required
+                      value={isLogin ? loginInput.email : signupInput.email}
+                      onChange={changeHandler}
+                      className="block w-full px-4 py-2.5 border border-gray-200 rounded-xl 
+                        bg-white/50 backdrop-blur-sm
+                        transition-all duration-200 
+                        focus:ring-2 focus:ring-indigo-500 focus:border-transparent
+                        group-hover:border-gray-300"
+                      placeholder="email@example.com"
+                    />
+                  </motion.div>
+
+                  <motion.div variants={fadeIn} className="group">
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Password</label>
+                    <input
+                      name="password"
+                      type="password"
+                      required
+                      value={isLogin ? loginInput.password : signupInput.password}
+                      onChange={changeHandler}
+                      className="block w-full px-4 py-2.5 border border-gray-200 rounded-xl 
+                        bg-white/50 backdrop-blur-sm
+                        transition-all duration-200 
+                        focus:ring-2 focus:ring-indigo-500 focus:border-transparent
+                        group-hover:border-gray-300"
+                      placeholder="••••••••"
+                    />
+                  </motion.div>
+                </motion.div>
+
+                <motion.div
+                  className="pt-1"
+                  whileHover={{ scale: 1.01 }}
+                  whileTap={{ scale: 0.99 }}
+                >
+                  <Button
+                    type="submit"
+                    className="w-full py-2.5 px-4 bg-gradient-to-r from-indigo-600 to-purple-600 
+                      text-white rounded-xl font-medium 
+                      shadow-lg shadow-indigo-200/50 
+                      hover:shadow-xl hover:shadow-indigo-300/50 
+                      hover:-translate-y-0.5 
+                      transition-all duration-200
+                      disabled:opacity-50 disabled:cursor-not-allowed"
+                    disabled={isFormIncomplete || (isLogin ? loginLoading : registerLoading)}
+                  >
+                    {isLogin 
+                      ? (loginLoading ? 'Logging in...' : 'Login') 
+                      : (registerLoading ? 'Creating Account...' : 'Create Account')}
+                  </Button>
+                </motion.div>
+              </form>
+            </motion.div>
+          </AnimatePresence>
+        </div>
       </motion.div>
-    </motion.div>
-  );
+    </div>
+  )
 }
 
-export default Login;
+export default Login
