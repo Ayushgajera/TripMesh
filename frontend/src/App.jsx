@@ -1,9 +1,14 @@
-import { Button } from "@/components/ui/button"
+import React from 'react'
+import Login from './pages/Login'
+import { Route, Routes } from 'react-router-dom'
 
 function App() {
   return (
-    <div className="flex flex-col items-center justify-center min-h-svh">
-      <Button>Click me</Button>
+    <div>
+      <Routes>
+        <Route path="/" element={<Login/>}/>
+        <Route path="*" element={"no page found"} />
+      </Routes>
     </div>
   )
 }
