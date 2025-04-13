@@ -3,5 +3,5 @@ import { configureStore } from '@reduxjs/toolkit'
 import rootreducer from "../app/rootReducer.js";
 export const appstore = configureStore({
   reducer:rootreducer,
-  midleware:(getDefaultMiddleware) =>getDefaultMiddleware().concat([authApi.middleware]),
+  middleware:(getDefaultMiddleware) =>getDefaultMiddleware().concat([authApi.middleware]),
 })
