@@ -1,5 +1,6 @@
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
 import { userLoggedIn } from '../authslice';
+import { data } from 'react-router-dom';
 
 const user_api = 'http://localhost:5000/api/v1/user/'
 export const authApi = createApi({
@@ -26,14 +27,23 @@ export const authApi = createApi({
                 method: 'POST',
                 body: userData,
             }),
-            async onQueryStarted(arg, { queryFulfilled, dispatch }) {
+            onQueryStarted: async (arg, { queryFulfilled, dispatch }) => {
                 try {
-                    const { data } = await queryFulfilled
-                    dispatch(userLoggedIn({user:Date.data.user}));
-                } catch (err) {
-                    console.log(err)
+                  const { data } = await queryFulfilled;
+              
+                  dispatch(
+                    userLoggedIn({
+                      User: data.user,
+                      token: data.token,
+                    })
+                  );
+              
+                  console.log("✅ User logged in successfully:", data.user);
+                } catch (error) {
+                  console.error(" Login failed:", error);
                 }
-            }
+              }
+              
         }),
     }),
 })
