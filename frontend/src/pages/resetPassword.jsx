@@ -1,13 +1,22 @@
 import React, { useState } from 'react'
 import { motion } from 'framer-motion'
 import { toast } from 'sonner'
+import { useResetPasswordUserMutation } from '@/features/api/authapi'
+import { useParams } from 'react-router-dom'
 
 function ResetPassword() {
   const [passwords, setPasswords] = useState({
     password: '',
     confirmPassword: ''
   })
-  const [isLoading, setIsLoading] = useState(false)
+  const { id, token } = useParams()
+
+  const [resetPasswordUser,{
+    data: resetData,
+    isError: resetError,
+    isLoading: resetLoading,
+    isSuccess: resetSuccess,
+  }] =useResetPasswordUserMutation();
 
   const handleChange = (e) => {
     const { name, value } = e.target
@@ -23,10 +32,7 @@ function ResetPassword() {
       toast.error('Passwords do not match!')
       return
     }
-    setIsLoading(true)
-    // Add your API call here
-    toast.success('Password has been reset successfully!')
-    setIsLoading(false)
+    await resetPasswordUser({password: passwords.confirmPassword , id, token})
   }
 
   const isFormValid = passwords.password && 
@@ -114,7 +120,7 @@ function ResetPassword() {
 
             <motion.button
               type="submit"
-              disabled={!isFormValid || isLoading}
+              disabled={!isFormValid || resetLoading}
               whileHover={{ scale: 1.01 }}
               whileTap={{ scale: 0.99 }}
               className="w-full py-2.5 px-4 bg-gradient-to-r from-indigo-600 to-purple-600 
@@ -124,7 +130,7 @@ function ResetPassword() {
                 transition-all duration-200
                 disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              {isLoading ? 'Resetting...' : 'Reset Password'}
+              {resetLoading ? 'Resetting...' : 'Reset Password'}
             </motion.button>
           </form>
 

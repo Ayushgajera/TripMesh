@@ -5,7 +5,7 @@ import { useForgotPasswordUserMutation } from '@/features/api/authapi'
 
 function ForgotPassword() {
   const [email, setEmail] = useState('')
-  console.log(email);
+
 
 
   const [forgotPasswordUser,
