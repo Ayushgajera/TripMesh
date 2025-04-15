@@ -3,6 +3,7 @@ import { Button } from '../components/ui/button'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useLoginUserMutation, useSignupUserMutation } from '../features/api/authapi'
 import { toast } from 'sonner'
+import { Link } from 'react-router-dom'
 
 const Login = () => {
   const [isLogin, setIsLogin] = useState(true)
@@ -169,10 +170,11 @@ useEffect(() => {
           </div>
 
           {/* Role Selection */}
-          <motion.div
+          {!isLogin && ( <motion.div
             variants={fadeIn}
             className="mb-6"
           >
+            
             <label className="block text-sm font-medium text-gray-700 mb-2">
               Choose your role
             </label>
@@ -212,7 +214,8 @@ useEffect(() => {
                 </motion.button>
               ))}
             </div>
-          </motion.div>
+          </motion.div>)}
+         
 
           <AnimatePresence mode="wait">
             <motion.div
@@ -297,6 +300,21 @@ useEffect(() => {
                         group-hover:border-gray-300"
                       placeholder="••••••••"
                     />
+                    {/* Add Forgot Password Link - only show when in login mode */}
+                    {isLogin && (
+                      <motion.div
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        className="mt-2 text-right"
+                      >
+                        <Link
+                          to="/forgot-password"
+                          className="text-sm text-indigo-600 hover:text-indigo-700 transition-colors duration-200"
+                        >
+                          Forgot Password?
+                        </Link>
+                      </motion.div>
+                    )}
                   </motion.div>
                 </motion.div>
 
