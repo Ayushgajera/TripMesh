@@ -1,18 +1,40 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { motion } from 'framer-motion'
 import { toast } from 'sonner'
+import { useForgotPasswordUserMutation } from '@/features/api/authapi'
 
 function ForgotPassword() {
   const [email, setEmail] = useState('')
-  const [isLoading, setIsLoading] = useState(false)
+  console.log(email);
+
+
+  const [forgotPasswordUser,
+    { data: forgotData,
+      isError: forgoterror,
+      isLoading: forgotloading,
+      isSuccess: forgotSuccess,
+    }] = useForgotPasswordUserMutation();
+
 
   const handleSubmit = async (e) => {
     e.preventDefault()
-    setIsLoading(true)
-    // Add your API call here
-    toast.success('If an account exists with this email, you will receive a password reset link.')
-    setIsLoading(false)
+    try {
+      const res = await forgotPasswordUser({email});
+      console.log(res);
+      // toast.success('If an account exists with this email, you will receive a password reset link.')
+    } catch (error) {
+      console.error(error)
+    }
   }
+  useEffect(() => {
+    if (forgotSuccess) {
+      toast.success('If an account exists with this email, you will receive a password reset link.')
+    }
+    if (forgoterror) {
+
+      toast.error('Error sending password reset link. Please try again.')
+    }
+  }, [forgotSuccess, forgotData, forgoterror]);
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-indigo-100 via-purple-50 to-pink-100">
@@ -28,10 +50,10 @@ function ForgotPassword() {
           border border-white/20"
       >
         <div className="absolute inset-0 bg-gradient-to-br from-indigo-50 via-purple-50/50 to-pink-50/30 pointer-events-none" />
-        
+
         <div className="relative z-10 space-y-6">
           <div className="text-center space-y-2">
-            <motion.h2 
+            <motion.h2
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               className="text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-indigo-600 to-purple-600"
@@ -44,7 +66,7 @@ function ForgotPassword() {
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-4">
-            <motion.div 
+            <motion.div
               initial={{ opacity: 0, x: -20 }}
               animate={{ opacity: 1, x: 0 }}
               className="group"
@@ -68,7 +90,7 @@ function ForgotPassword() {
 
             <motion.button
               type="submit"
-              disabled={isLoading || !email}
+              disabled={forgotloading || !email}
               whileHover={{ scale: 1.01 }}
               whileTap={{ scale: 0.99 }}
               className="w-full py-2.5 px-4 bg-gradient-to-r from-indigo-600 to-purple-600 
@@ -78,7 +100,7 @@ function ForgotPassword() {
                 transition-all duration-200
                 disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              {isLoading ? 'Sending...' : 'Send Reset Link'}
+              {forgotloading ? 'Sending...' : 'Send Reset Link'}
             </motion.button>
           </form>
         </div>

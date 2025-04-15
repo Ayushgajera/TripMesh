@@ -45,7 +45,37 @@ export const authApi = createApi({
               }
               
         }),
+        forgotPasswordUser: builder.mutation({
+            query: (userData) => ({
+                url: 'forgotPassword',
+                method: 'POST',
+                body: userData,
+            }),
+            onQueryStarted: async (arg, { queryFulfilled }) => {
+                try {
+                    const { data } = await queryFulfilled;
+                    console.log("✅ Password reset link sent successfully:", data);
+                } catch (error) {
+                    console.error("Password reset failed:", error);
+                }
+            }
+        }),
+        resetPasswordUser: builder.mutation({
+            query: (userData,id,token) => ({
+                url: `resetPassword/:${id}/:${token}`,
+                method: 'POST',
+                body: userData,
+            }),
+            onQueryStarted: async (arg, { queryFulfilled }) => {
+                try {
+                    const { data } = await queryFulfilled;
+                    console.log("✅ Password reset successfully:", data);
+                } catch (error) {
+                    console.error("Password reset failed:", error);
+                }
+            }
+        }),
     }),
 })
 
-export const { useSignupUserMutation, useLoginUserMutation } = authApi
+export const { useSignupUserMutation, useLoginUserMutation ,useForgotPasswordUserMutation,useResetPasswordUserMutation } = authApi
