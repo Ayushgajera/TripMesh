@@ -7,7 +7,7 @@ const jwt=require("jsonwebtoken");
 
 
 const signUp=async(req,res)=>{
-    const {userName,email,password,role}=req.body;
+    const {userName,email,password}=req.body;
     try {
         const userExist=await User.findOne({email});
         if(userExist){
@@ -22,7 +22,6 @@ const signUp=async(req,res)=>{
             userName,
             email,
             password,
-            role
         });
         await user.save();
         
@@ -70,7 +69,7 @@ const login=async(req,res)=>{
     }
 }
 
-const   forgotPassword=async(req,res)=>{
+const forgotPassword=async(req,res)=>{
     const {email}=req.body;
     try {
         const user=await User.findOne({email});
@@ -105,26 +104,23 @@ const resetPassword=async(req,res)=>{
     const {password}=req.body;
     try {
         const user=await User.findOne({_id:id});
+        console.log(user.password);
         if(!user){
             const errResponse=responseService.error("User Not Found");
             return res.status(errResponse.status).json(errResponse);
+        }
+        if(!validatePassword(password)){
+            const  errorRes=responseService.error("Password Must contain at least one lowercase,uppercase character,one digit,one special character");
+            return res.status(errorRes.status).json(errorRes);
         }
         const verify=jwt.verify(token,process.env.FORGOT_PASS_SCERET);
         if(!verify){
             const errResponse=responseService.error("Token are Expired");
             return res.status(errResponse.status).json(errResponse);
         }
-        await User.findOneAndUpdate(
-            {
-                _id:id
-            },
-            {
-                $set:{
-                    password:password
-                }
-            }
-        );
+        user.password=password;
         await user.save();
+        console.log(user.password);
         const successResponse=responseService.success("Password Reseted SuccessFully",user);
         return res.status(successResponse.status).json(successResponse); 
     } catch (error) {
