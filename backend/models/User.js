@@ -23,7 +23,8 @@ const userSchema=new mongoose.Schema({
     },
     role:{
         type:String,
-        required:true
+        enum:["passenger","driver"],
+        default:"passenger"
     }
 },{timestamps:true});
 
