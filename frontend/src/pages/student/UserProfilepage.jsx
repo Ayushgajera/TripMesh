@@ -102,12 +102,6 @@ const UserProfilePage = () => {
       language: 'English',
       notifications: true,
       darkMode: false
-    },
-    referral: {
-      code: 'ALEX2025',
-      pointsEarned: 450,
-      invitesSent: 8,
-      successfulReferrals: 3
     }
   });
 
@@ -314,7 +308,6 @@ const UserProfilePage = () => {
       {/* Main Content */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 md:py-12">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 md:gap-6">
-          {/* Content sections wrapped in conditional rendering based on activeTab */}
           <div className={activeTab === 'overview' ? 'block' : 'hidden md:block'}>
             {/* Personal Information */}
             <div className="bg-white rounded-2xl shadow-lg p-4 md:p-6 border border-purple-100">
