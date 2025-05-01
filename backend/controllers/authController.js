@@ -4,7 +4,9 @@ const { validatePassword } = require("../helpers/validatePassword.js");
 const generateTokens = require("../helpers/generateToken.js");
 const sendMail = require("../helpers/sendMail.js");
 const jwt=require("jsonwebtoken");
-
+const razorpay=require("../helpers/razorpay.js");
+const PaymentOrder=require("../models/PaymentOrder.js")
+const crypto = require("crypto");
 
 const signUp=async(req,res)=>{
     const {userName,email,password}=req.body;
@@ -129,10 +131,88 @@ const resetPassword=async(req,res)=>{
     }
 }
 
+const DespositeToWalllet=async(req,res)=>{
+    const {amount}=req.body;
+    const userId=req.user.id;
+    
+    const user=await User.findById(userId);
+    if (!user) return res.status(404).json({ message: "User not found" });
+
+    const paymentType = user.prefferedPayment;
+    const receipt = "wd_" + crypto.randomBytes(6).toString("hex");
+
+    const options={
+        amount,
+        currency:"INR",
+        receipt,
+        payment_capture:1,
+        notes:{
+            userId,
+            paymentType:paymentType
+        }
+    }
+
+    try {
+        const order=await razorpay.orders.create(options);
+        await PaymentOrder.create({
+            userId,
+            razorpayOrderId: order.id,
+            amount,
+            currency: order.currency,
+            status: "created"
+        })
+        
+        return res.status(200).json({
+            orderId: order.id,
+            currency: order.currency,
+            amount: order.amount,
+            paymentType
+        })
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: error.message});
+    }
+
+}
+
+const verifyPayment=async(req,res)=>{
+    const {orderId,paymentId,signature,amount}=req.body;
+    const userId=req.user.id;
+    const generatedSignature = crypto
+    .createHmac("sha256", process.env.RAZORPAY_KEY_SECRET)
+    .update(orderId + "|" + paymentId)
+    .digest("hex");
+
+    if (generatedSignature !== signature) {
+        return res.status(400).json({ message: "Invalid payment signature" });
+    }
+
+    const order = await PaymentOrder.findOne({ razorpayOrderId: orderId });
+    if (!order) return res.status(404).json({ message: "Order not found" });
+
+    order.status = "success";
+    order.paymentId = paymentId;
+    await order.save();
+
+    const user = await User.findById(userId);
+    user.wallet.balance += amount;
+    user.wallet.transactions.push({
+        type: "deposit",
+        amount,
+        status: "success",
+        description: "Wallet deposit",
+        paymentId,
+    });
+    await user.save();
+
+    res.json({ message: "Wallet funded successfully", balance: user.wallet.balance });
+}
 
 module.exports={
     signUp,
     login,
     forgotPassword,
-    resetPassword
+    resetPassword,
+    DespositeToWalllet,
+    verifyPayment
 }
