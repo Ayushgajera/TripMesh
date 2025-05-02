@@ -26,6 +26,9 @@ const userSchema=new mongoose.Schema({
         enum:["passenger","driver"],
         default:"passenger"
     },
+    profilepic:{
+        type:String
+    },
     phoneNo:{
         type:String,
         trim:true,

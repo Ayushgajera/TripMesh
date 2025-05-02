@@ -136,7 +136,10 @@ const DespositeToWalllet=async(req,res)=>{
     const userId=req.user.id;
     
     const user=await User.findById(userId);
-    if (!user) return res.status(404).json({ message: "User not found" });
+    if (!user) {
+        const errResponse=responseService.error("User Not Found");
+        return res.status(errResponse.status).json(errResponse);
+    }
 
     const paymentType = user.prefferedPayment;
     const receipt = "wd_" + crypto.randomBytes(6).toString("hex");
@@ -161,16 +164,16 @@ const DespositeToWalllet=async(req,res)=>{
             currency: order.currency,
             status: "created"
         })
-        
-        return res.status(200).json({
+        const successResponse=responseService.success("Order Created SuccessFully",{
             orderId: order.id,
             currency: order.currency,
             amount: order.amount,
             paymentType
-        })
+        });
+        return res.status(successResponse.status).json(successResponse); 
     } catch (error) {
-        console.error(error);
-        res.status(500).json({ message: error.message});
+        const errResponse=responseService.internalServerError(error);        
+        return res.status(errResponse.status).json(errResponse);
     }
 
 }
@@ -184,11 +187,15 @@ const verifyPayment=async(req,res)=>{
     .digest("hex");
 
     if (generatedSignature !== signature) {
-        return res.status(400).json({ message: "Invalid payment signature" });
+        const errResponse=responseService.error("Invalid Signature");
+        return res.status(errResponse.status).json(errResponse);
     }
 
     const order = await PaymentOrder.findOne({ razorpayOrderId: orderId });
-    if (!order) return res.status(404).json({ message: "Order not found" });
+    if (!order) {
+        const errResponse=responseService.error("Order Not Found");
+        return res.status(errResponse.status).json(errResponse);
+    }
 
     order.status = "success";
     order.paymentId = paymentId;
@@ -205,7 +212,23 @@ const verifyPayment=async(req,res)=>{
     });
     await user.save();
 
-    res.json({ message: "Wallet funded successfully", balance: user.wallet.balance });
+    const successResponse=responseService.success("Wallet Funded SuccessFully",{balance:user.wallet.balance});
+    return res.status(successResponse.status).json(successResponse); 
+}
+
+const updateProfile=async(req,res)=>{
+    const updates=req.body;
+    const userId=req.user.id;
+
+    if(!updates||Object.keys(updates).length==0){
+        return res.status(200).json({message:"No fields to update"});
+    }
+
+   const updatedUser=await User.findByIdAndUpdate(userId,{
+    $set:updates},{new:true,runValidators:true});
+
+    const successResponse=responseService.success("Profile Updated SuccessFully",updatedUser);
+    return res.status(successResponse.status).json(successResponse); 
 }
 
 module.exports={
@@ -214,5 +237,6 @@ module.exports={
     forgotPassword,
     resetPassword,
     DespositeToWalllet,
-    verifyPayment
+    verifyPayment,
+    updateProfile
 }
