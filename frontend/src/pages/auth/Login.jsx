@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
-import { Button } from '../components/ui/button'
+import { Button } from '../../components/ui/Button'
 import { motion, AnimatePresence } from 'framer-motion'
-import { useLoginUserMutation, useSignupUserMutation } from '../features/api/authapi'
+import { useLoginUserMutation, useSignupUserMutation } from '../../features/api/authapi'
 import { toast } from 'sonner'
 import { Link } from 'react-router-dom'
 
