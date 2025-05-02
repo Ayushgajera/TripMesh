@@ -25,6 +25,60 @@ const userSchema=new mongoose.Schema({
         type:String,
         enum:["passenger","driver"],
         default:"passenger"
+    },
+    phoneNo:{
+        type:String,
+        trim:true,
+        match:[/^\+\d{6,15}$/,'Phone must be in E.164 form (e.g. +14155552671)'],
+        unique:true,
+        default:""
+    },
+    address:{
+        type:String,
+    },
+    prefferedPayment:{
+        type:String,
+        enum:["credit card","upi"],
+        default:"credit card"
+    },
+    dateOfBirth:Date,
+    totalDistanceKm: {
+        type: Number,
+        default: 0,
+    },
+    amountSpent: {
+        type: Number,
+        default: 0,
+    },
+    ridesThisMonth: {
+        type: Number,
+        default: 0,
+    },
+    rating: {
+        type: Number,
+        default: 5,
+    },
+    wallet:{
+        balance:{
+            type:Number,
+            default:0
+        },
+        transactions:[
+            {
+                type: {
+                    type: String, 
+                  },
+                  amount: Number,
+                  date: {
+                    type: Date,
+                    default: Date.now
+                  },
+                  status: {
+                    type: String, 
+                  },
+                  description: String
+            }
+        ]
     }
 },{timestamps:true});
 

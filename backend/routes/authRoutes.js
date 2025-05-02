@@ -1,10 +1,13 @@
 const router=require("express").Router();
-const { signUp, login,forgotPassword,resetPassword} = require("../controllers/authController");
+const { signUp, login,forgotPassword,resetPassword, DespositeToWalllet, verifyPayment} = require("../controllers/authController");
+const verifyToken = require("../helpers/verifyToken");
 
 
 router.post('/signup',signUp);
 router.post('/login',login);
 router.post('/forgotPassword',forgotPassword);
-router.post('/reset-password/:id/:token',resetPassword)
+router.post('/reset-password/:id/:token',resetPassword);
+router.post('/wallet/deposit',verifyToken,DespositeToWalllet);
+router.post('/payment/verifypayment',verifyToken,verifyPayment)
 
 module.exports=router;

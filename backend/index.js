@@ -1,5 +1,6 @@
-const express=require("express");
 const dotenv=require("dotenv");
+dotenv.config();
+const express=require("express");
 const cookieParser=require("cookie-parser");
 const connectToDb=require("./helpers/connectionToDb.js");
 const userRouter=require("./routes/authRoutes.js");
@@ -12,7 +13,6 @@ app.use(cors({
     optionSuccessStatus: 200,
 }))
 
-dotenv.config();
 connectToDb();
 
 app.use(express.json());
