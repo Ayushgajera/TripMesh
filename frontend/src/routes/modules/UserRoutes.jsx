@@ -1,5 +1,5 @@
 import { Route } from "react-router-dom";
-import Profile from "../../pages/student/UserProfilepage";
+import Profile from "../../pages/user/UserProfilepage";
 
 
 export default (
