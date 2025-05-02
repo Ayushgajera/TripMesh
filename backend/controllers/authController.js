@@ -177,9 +177,10 @@ const DespositeToWalllet=async(req,res)=>{
 
 const verifyPayment=async(req,res)=>{
     const {orderId,paymentId,signature,amount}=req.body;
+    console.log(req.body);
     const userId=req.user.id;
     const generatedSignature = crypto
-    .createHmac("sha256", process.env.RAZORPAY_KEY_SECRET)
+    .createHmac("sha256", process.env.RAZORPAY_SECRET)
     .update(orderId + "|" + paymentId)
     .digest("hex");
 
