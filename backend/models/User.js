@@ -2,6 +2,13 @@ const mongoose=require("mongoose");
 const bycrpt=require("bcrypt");
 const validator=require("validator");
 
+const DriverApplicationSchema = new mongoose.Schema({
+    status: { type: String, enum: ['pending', 'approved', 'rejected'], default: 'pending' },
+    formData: { type: Object },
+    appliedAt: { type: Date }
+});
+  
+
 const userSchema=new mongoose.Schema({
     userName:{
         type:String,
@@ -48,6 +55,10 @@ const userSchema=new mongoose.Schema({
     totalDistanceKm: {
         type: Number,
         default: 0,
+    },
+    driverApplication:{
+        type:DriverApplicationSchema,
+        default:null
     },
     amountSpent: {
         type: Number,
