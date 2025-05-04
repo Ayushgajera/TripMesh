@@ -1,9 +1,8 @@
 const ROUTES = {
-    HOME: "/",
-    LOGIN: "/login",
-    PROFILE: "/profile",
-    RIDE_SEARCH: "/rides/search",
-    RIDE_POST: "/rides/post",
-  };
-  export default ROUTES;
-  
+  HOME: "/",
+  LOGIN: "/login",
+  PROFILE: "/profile",
+  WALLET: "/profile/wallet/deposit",
+  WALLET_DEPOSIT: "/wallet/deposit",
+};
+export default ROUTES;

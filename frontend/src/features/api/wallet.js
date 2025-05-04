@@ -4,13 +4,13 @@ import Cookies from 'js-cookie';
 export const walletApi = createApi({
   reducerPath: 'walletApi',
   baseQuery: fetchBaseQuery({
-    baseUrl: 'http://localhost:5000/api/v1/user', // Your backend API base URL
-    credentials: 'include', // Ensures cookies are sent with the request
+    baseUrl: 'http://localhost:5000/api/v1/user', 
+    credentials: 'include',
     prepareHeaders: (headers) => {
-      // No need to manually add the token here since the cookie will handle it
+      
       return headers;
     },
-    credentials: 'include', // Ensure cookies are sent with the request
+    credentials: 'include', 
   }),
   endpoints: (builder) => ({
     depositToWallet: builder.mutation({

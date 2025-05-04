@@ -4,10 +4,11 @@ import UserRoutes from "./modules/UserRoutes";;
 import HomePage from "../pages/home/HomePage";
 import { Route } from "react-router-dom";
 import wallet from "./modules/wallet";
+import ROUTES from "./RoutePaths";
 
 const AppRoutes = () => (
   <Routes>
-    <Route path="/" element={<HomePage />} />
+    <Route path={ROUTES.HOME} element={<HomePage />} />
     {AuthRoutes}
     {UserRoutes}
     {wallet}
@@ -16,3 +17,5 @@ const AppRoutes = () => (
 );
 
 export default AppRoutes;
+
+
