@@ -7,13 +7,15 @@ const userRouter=require("./routes/authRoutes.js");
 const driverRouter=require("./routes/driverRoutes.js");
 const app=express();
 const cors=require("cors");
-const cron=require("node-cron");
-const autoApproveDrivers = require("./jobs/autoApproveDriver.js");
 
-cron.schedule("* * * * *",()=>{
-    console.log("Running Approval cron job...");
-    autoApproveDrivers();
-})
+//Removed this Part for some time 
+// const cron=require("node-cron");
+// const autoApproveDrivers = require("./jobs/autoApproveDriver.js");
+
+// cron.schedule("* * * * *",()=>{
+//     console.log("Running Approval cron job...");
+//     autoApproveDrivers();
+// })
 
 app.use(cors({
     origin: 'http://localhost:5173',

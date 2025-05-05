@@ -213,7 +213,7 @@ const verifyPayment=async(req,res)=>{
     });
     await user.save();
 
-    const successResponse=responseService.success("Wallet Funded SuccessFully",{balance:user.wallet.balance});
+    const successResponse=responseService.success("Wallet Funded SuccessFully",[{balance:user.wallet.balance},{transactions:user.transactions}]);
     return res.status(successResponse.status).json(successResponse); 
 }
 
