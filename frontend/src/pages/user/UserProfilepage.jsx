@@ -42,9 +42,13 @@ const UserProfilePage = () => {
   const [activeTab, setActiveTab] = useState('overview');
   const navigate = useNavigate();
   const walletBalance = useSelector(state => state.user.wallet.balance);
+  const usersData = useSelector(state => state.auth.user); // Access 'user' from the 'auth' slice
+
+  console.log(usersData);
   const currentBalance = useSelector(state => state.user.wallet.balance);
   console.log(walletBalance);
   console.log(currentBalance);
+  // temporary data for user profile
   const [userData, setUserData] = useState({
     personalInfo: {
       name: 'Alex Johnson',
@@ -292,7 +296,7 @@ const UserProfilePage = () => {
                 <div className="flex flex-col items-center md:flex-row md:items-start md:justify-between gap-4">
                   <div>
                     <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold tracking-tight text-white">
-                      {userData.personalInfo.name}
+                      {usersData.userName}
                     </h1>
                     <div className="flex flex-wrap items-center justify-center md:justify-start gap-2 mt-3">
                       <span className="inline-flex items-center px-2.5 py-0.5 md:px-3 md:py-1 rounded-full text-xs md:text-sm font-medium bg-purple-500/20 text-white backdrop-blur-sm">
@@ -519,7 +523,7 @@ const UserProfilePage = () => {
                 {/* Balance Card */}
                 <div className="bg-gradient-to-br from-purple-500 to-indigo-600 rounded-xl p-6 text-white">
                   <p className="text-sm opacity-80">Available Balance</p>
-                  <p className="text-4xl font-bold mt-2">₹{walletBalance.toFixed(2)}</p>
+                  <p className="text-4xl font-bold mt-2">₹{usersData.wallet.balance.toFixed(2)}</p>
                   <div className="mt-4 pt-4 border-t border-white/20">
                     <p className="text-sm opacity-80">Last updated</p>
                     <p className="text-sm">{new Date().toLocaleString()}</p>

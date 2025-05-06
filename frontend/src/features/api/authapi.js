@@ -33,12 +33,12 @@ export const authApi = createApi({
               
                   dispatch(
                     userLoggedIn({
-                      User: data.user,
+                      User: data.data,
                       token: data.token,
                     })
                   );
               
-                  console.log("✅ User logged in successfully:", data.user);
+                  console.log("✅ User logged in successfully:", data.data);
                 } catch (error) {
                   console.error(" Login failed:", error);
                 }

@@ -36,7 +36,8 @@ const WalletDeposit = () => {
         return;
       }
 
-      const data = result.data;
+      const data = result.data.data;
+        console.log(data.amount);
 
       const options = {
         key: import.meta.env.VITE_RAZORPAY_KEY_ID,

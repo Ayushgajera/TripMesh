@@ -2,8 +2,9 @@ import { createSlice } from '@reduxjs/toolkit';
 
 const initialState = {
   wallet: {
-    balance: 10,
-  },
+    balance: 0,
+    transactions: []
+  }
 };
 
 const userSlice = createSlice({
@@ -11,11 +12,9 @@ const userSlice = createSlice({
   initialState,
   reducers: {
     updateBalance: (state, action) => {
-      state.wallet.balance = action.payload;
-      console.log("Updated balance:", state.wallet.balance);
-    },
-    
-  },
+      state.wallet.balance = Number(action.payload);
+    }
+  }
 });
 
 export const { updateBalance } = userSlice.actions;
