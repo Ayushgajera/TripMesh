@@ -213,7 +213,7 @@ const verifyPayment=async(req,res)=>{
     });
     await user.save();
 
-    const successResponse=responseService.success("Wallet Funded SuccessFully",{balance:user.wallet.balance});
+    const successResponse=responseService.success("Wallet Funded SuccessFully",[{balance:user.wallet.balance},{transactions:user.transactions}]);
     return res.status(successResponse.status).json(successResponse); 
 }
 
@@ -232,6 +232,22 @@ const updateProfile=async(req,res)=>{
     return res.status(successResponse.status).json(successResponse); 
 }
 
+const getUser=async(req,res)=>{
+    const userId=req.user.id;
+    try {
+        const user=await User.findById(userId);
+        if(!user){
+            const errResponse=responseService.error("User Not Found");
+            return res.status(errResponse.status).json(errResponse); 
+        }
+        const successResponse=responseService.success("User founded SuccessFully",user);
+        return res.status(successResponse.status).json(successResponse); 
+    } catch (error) {
+        const errResponse=responseService.internalServerError(error);        
+        return res.status(errResponse.status).json(errResponse);
+    }
+}
+
 module.exports={
     signUp,
     login,
@@ -239,5 +255,6 @@ module.exports={
     resetPassword,
     DespositeToWalllet,
     verifyPayment,
-    updateProfile
+    updateProfile,
+    getUser
 }
